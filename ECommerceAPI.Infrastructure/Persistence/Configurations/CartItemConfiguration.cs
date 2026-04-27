@@ -10,6 +10,9 @@ public class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
     {
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.Id)
+            .ValueGeneratedNever();
+
         builder.Property(x => x.UnitPriceSnapshot)
             .HasColumnType("decimal(18,2)");
 

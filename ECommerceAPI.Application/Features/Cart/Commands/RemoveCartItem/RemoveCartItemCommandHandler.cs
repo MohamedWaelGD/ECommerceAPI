@@ -23,8 +23,9 @@ public class RemoveCartItemCommandHandler(IUnitOfWork unitOfWork, ICurrentUserSe
                 await unitOfWork.SaveChangesAsync(cancellationToken);
                 return Result<CartDto>.Success(cart.ToDto());
             }
-            catch (DbUpdateConcurrencyException) when (attempt == 0)
+            catch (DbUpdateConcurrencyException)
             {
+                if (attempt > 0) return Result<CartDto>.Conflict("Cart was modified by another request. Please retry.");
                 unitOfWork.ClearChanges();
             }
             catch (InvalidOperationException ex)
