@@ -23,6 +23,9 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.StripeCheckoutSessionId)
             .HasMaxLength(255);
 
+        builder.Property(x => x.StripeCheckoutSessionUrl)
+            .HasMaxLength(2048);
+
         builder.Property(x => x.StripePaymentIntentId)
             .HasMaxLength(255);
 

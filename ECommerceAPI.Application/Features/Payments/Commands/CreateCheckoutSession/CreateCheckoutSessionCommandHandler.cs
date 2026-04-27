@@ -24,12 +24,27 @@ public class CreateCheckoutSessionCommandHandler(IUnitOfWork unitOfWork, ICurren
             if (!item.Product.HasStock(item.Quantity)) return Result<CheckoutResponse>.Failure($"Product '{item.Product.Name}' does not have enough stock.");
         }
 
-        var order = Order.CreateFromCart(userId.Value, cart.Items);
-        unitOfWork.Orders.Add(order);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        var order = await unitOfWork.Orders.GetLatestPendingByUserIdWithItemsAsync(userId.Value, cancellationToken);
+        if (order is not null && !order.MatchesCart(cart.Items))
+        {
+            order.Cancel();
+            order = null;
+        }
+
+        if (order?.HasActiveCheckoutSession(DateTime.UtcNow) == true)
+        {
+            return Result<CheckoutResponse>.Success(new CheckoutResponse(order.Id, order.StripeCheckoutSessionUrl!));
+        }
+
+        if (order is null)
+        {
+            order = Order.CreateFromCart(userId.Value, cart.Items);
+            unitOfWork.Orders.Add(order);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
 
         var session = await stripeCheckoutService.CreateCheckoutSessionAsync(order, cancellationToken);
-        order.SetStripeCheckoutSession(session.SessionId);
+        order.SetStripeCheckoutSession(session.SessionId, session.Url, session.ExpiresAt);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<CheckoutResponse>.Success(new CheckoutResponse(order.Id, session.Url));

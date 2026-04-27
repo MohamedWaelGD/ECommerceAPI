@@ -26,6 +26,8 @@ public class Order
     public OrderStatus Status { get; private set; } = OrderStatus.PendingPayment;
     public decimal TotalAmount { get; private set; }
     public string? StripeCheckoutSessionId { get; private set; }
+    public string? StripeCheckoutSessionUrl { get; private set; }
+    public DateTime? StripeCheckoutSessionExpiresAt { get; private set; }
     public string? StripePaymentIntentId { get; private set; }
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
     public DateTime? PaidAt { get; private set; }
@@ -39,7 +41,42 @@ public class Order
         return new Order(Guid.NewGuid(), userId, $"ORD-{DateTime.UtcNow:yyyyMMddHHmmss}-{Random.Shared.Next(1000, 9999)}", items);
     }
 
-    public void SetStripeCheckoutSession(string sessionId) => StripeCheckoutSessionId = sessionId;
+    public bool HasActiveCheckoutSession(DateTime utcNow) =>
+        !string.IsNullOrWhiteSpace(StripeCheckoutSessionUrl) &&
+        StripeCheckoutSessionExpiresAt is not null &&
+        StripeCheckoutSessionExpiresAt > utcNow;
+
+    public bool MatchesCart(IEnumerable<CartItem> cartItems)
+    {
+        var cart = cartItems
+            .Select(x => new { x.ProductId, x.Quantity, UnitPrice = x.UnitPriceSnapshot })
+            .OrderBy(x => x.ProductId)
+            .ToList();
+
+        var order = _items
+            .Select(x => new { x.ProductId, x.Quantity, UnitPrice = x.UnitPrice })
+            .OrderBy(x => x.ProductId)
+            .ToList();
+
+        return cart.Count == order.Count &&
+            cart.Zip(order).All(x =>
+                x.First.ProductId == x.Second.ProductId &&
+                x.First.Quantity == x.Second.Quantity &&
+                x.First.UnitPrice == x.Second.UnitPrice);
+    }
+
+    public void SetStripeCheckoutSession(string sessionId, string sessionUrl, DateTime expiresAt)
+    {
+        StripeCheckoutSessionId = sessionId;
+        StripeCheckoutSessionUrl = sessionUrl;
+        StripeCheckoutSessionExpiresAt = expiresAt;
+    }
+
+    public void Cancel()
+    {
+        if (Status == OrderStatus.Paid) return;
+        Status = OrderStatus.Cancelled;
+    }
 
     public void MarkPaid(string? stripePaymentIntentId)
     {

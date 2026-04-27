@@ -11,7 +11,7 @@ public class StripeCheckoutService(IOptions<StripeOptions> options) : IStripeChe
 {
     private readonly StripeOptions _options = options.Value;
 
-    public async Task<(string SessionId, string Url)> CreateCheckoutSessionAsync(Order order, CancellationToken cancellationToken)
+    public async Task<StripeCheckoutSession> CreateCheckoutSessionAsync(Order order, CancellationToken cancellationToken)
     {
         StripeConfiguration.ApiKey = _options.SecretKey;
 
@@ -35,7 +35,7 @@ public class StripeCheckoutService(IOptions<StripeOptions> options) : IStripeChe
             }).ToList()
         }, cancellationToken: cancellationToken);
 
-        return (session.Id, session.Url);
+        return new StripeCheckoutSession(session.Id, session.Url, session.ExpiresAt);
     }
 
     public StripeWebhookResult HandleWebhook(string payload, string signature)

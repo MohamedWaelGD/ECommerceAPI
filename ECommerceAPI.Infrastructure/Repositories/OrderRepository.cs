@@ -1,5 +1,6 @@
 using ECommerceAPI.Application.Common.Interfaces.Repositories;
 using ECommerceAPI.Domain.Entities;
+using ECommerceAPI.Domain.Enums;
 using ECommerceAPI.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,13 @@ public class OrderRepository(ApplicationDbContext context) : Repository<Order>(c
             .AsNoTracking()
             .Include(x => x.Items)
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, cancellationToken);
+
+    public Task<Order?> GetLatestPendingByUserIdWithItemsAsync(Guid userId, CancellationToken cancellationToken = default) =>
+        Context.Orders
+            .Include(x => x.Items)
+            .Where(x => x.UserId == userId && x.Status == OrderStatus.PendingPayment)
+            .OrderByDescending(x => x.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
 
     public Task<Order?> GetByStripeSessionIdWithItemsAsync(string stripeSessionId, CancellationToken cancellationToken = default) =>
         Context.Orders

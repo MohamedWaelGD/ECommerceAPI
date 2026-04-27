@@ -10,6 +10,9 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
     {
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.Id)
+            .ValueGeneratedNever();
+
         builder.Property(x => x.ProductNameSnapshot)
             .HasMaxLength(200)
             .IsRequired();
