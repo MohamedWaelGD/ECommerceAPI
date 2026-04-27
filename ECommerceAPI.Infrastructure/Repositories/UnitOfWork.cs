@@ -16,5 +16,7 @@ public class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
     public IOrderRepository Orders => _orders ??= new OrderRepository(context);
     public IRepository<RefreshToken> RefreshTokens => _refreshTokens ??= new Repository<RefreshToken>(context);
 
+    public void ClearChanges() => context.ChangeTracker.Clear();
+
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => context.SaveChangesAsync(cancellationToken);
 }

@@ -11,9 +11,9 @@ public class GetOrderByIdQueryHandler(IUnitOfWork unitOfWork, ICurrentUserServic
     public async Task<Result<OrderDto>> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
     {
         var userId = currentUser.UserId;
-        if (userId is null) return Result<OrderDto>.Failure("User is not authenticated.");
+        if (userId is null) return Result<OrderDto>.Unauthorized("User is not authenticated.");
 
         var order = await unitOfWork.Orders.GetByIdForUserAsync(request.Id, userId.Value, cancellationToken);
-        return order is null ? Result<OrderDto>.Failure("Order not found.") : Result<OrderDto>.Success(order.ToDto());
+        return order is null ? Result<OrderDto>.NotFound("Order not found.") : Result<OrderDto>.Success(order.ToDto());
     }
 }

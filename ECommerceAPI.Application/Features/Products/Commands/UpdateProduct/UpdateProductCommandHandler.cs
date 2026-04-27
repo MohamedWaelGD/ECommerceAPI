@@ -10,7 +10,7 @@ public class UpdateProductCommandHandler(IUnitOfWork unitOfWork) : IRequestHandl
     public async Task<Result<ProductDto>> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
         var product = await unitOfWork.Products.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-        if (product is null) return Result<ProductDto>.Failure("Product not found.");
+        if (product is null) return Result<ProductDto>.NotFound("Product not found.");
 
         product.Update(request.Name, request.Description, request.Price, request.StockQuantity, request.ImageUrl, request.IsActive);
         await unitOfWork.SaveChangesAsync(cancellationToken);

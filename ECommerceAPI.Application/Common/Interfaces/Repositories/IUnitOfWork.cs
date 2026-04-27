@@ -8,5 +8,6 @@ public interface IUnitOfWork
     ICartRepository Carts { get; }
     IOrderRepository Orders { get; }
     IRepository<RefreshToken> RefreshTokens { get; }
+    void ClearChanges();
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -11,9 +11,10 @@ public class GetMyCartQueryHandler(IUnitOfWork unitOfWork, ICurrentUserService c
     public async Task<Result<CartDto>> Handle(GetMyCartQuery request, CancellationToken cancellationToken)
     {
         var userId = currentUser.UserId;
-        if (userId is null) return Result<CartDto>.Failure("User is not authenticated.");
+        if (userId is null) return Result<CartDto>.Unauthorized("User is not authenticated.");
 
         var cart = await unitOfWork.Carts.GetOrCreateByUserIdAsync(userId.Value, cancellationToken);
-        return Result<CartDto>.Success(cart.ToDto());
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return Result<CartDto>.Success(cart.ToDto(request.Page, request.PageSize));
     }
 }

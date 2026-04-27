@@ -36,7 +36,7 @@ namespace ECommerceAPI.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Carts");
+                    b.ToTable("Carts", (string)null);
                 });
 
             modelBuilder.Entity("ECommerceAPI.Domain.Entities.CartItem", b =>
@@ -64,7 +64,7 @@ namespace ECommerceAPI.Infrastructure.Persistence.Migrations
                     b.HasIndex("CartId", "ProductId")
                         .IsUnique();
 
-                    b.ToTable("CartItems");
+                    b.ToTable("CartItems", (string)null);
                 });
 
             modelBuilder.Entity("ECommerceAPI.Domain.Entities.Order", b =>
@@ -108,7 +108,7 @@ namespace ECommerceAPI.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("ECommerceAPI.Domain.Entities.OrderItem", b =>
@@ -140,7 +140,7 @@ namespace ECommerceAPI.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("ECommerceAPI.Domain.Entities.Product", b =>
@@ -179,7 +179,7 @@ namespace ECommerceAPI.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("ECommerceAPI.Domain.Entities.RefreshToken", b =>
@@ -212,7 +212,7 @@ namespace ECommerceAPI.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("ECommerceAPI.Domain.Entities.User", b =>

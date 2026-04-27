@@ -20,7 +20,6 @@ public class CartRepository(ApplicationDbContext context) : Repository<Cart>(con
 
         cart = Cart.Create(userId);
         Add(cart);
-        await Context.SaveChangesAsync(cancellationToken);
         return cart;
     }
 }

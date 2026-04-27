@@ -9,7 +9,7 @@ public class DeleteProductCommandHandler(IUnitOfWork unitOfWork) : IRequestHandl
     public async Task<Result> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
     {
         var product = await unitOfWork.Products.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-        if (product is null) return Result.Failure("Product not found.");
+        if (product is null) return Result.NotFound("Product not found.");
 
         product.Deactivate();
         await unitOfWork.SaveChangesAsync(cancellationToken);
